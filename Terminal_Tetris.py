@@ -59,7 +59,7 @@ def main():
     # welcome the player
     screen.addstr(board_height / 2 - 5, 3, "Welcome to Terminal Tetris!")
 
-    BUFFER_TIME = 1
+    BUFFER_TIME = 3
     time_difference = time.time() - start_time
     while time_difference < BUFFER_TIME:
         screen.addstr((board_height / 2) - 4, 4, "Starting in..." + str((BUFFER_TIME) - int(time_difference)))
@@ -112,6 +112,26 @@ def main():
         elif user_input == curses.KEY_DOWN:
             if not has_moved:
                 current_brick.y += 1
+        elif user_input == 112:     # 112 is the int value for "p"
+            screen.addstr(22, 2, "PAUSED, press p to continue.")
+            main_window.nodelay(False)
+            exit = screen.getch()
+            while exit != 112:
+                exit = screen.getch()
+            main_window.nodelay(True)
+            screen.clear()
+            screen.refresh()
+            # reinstate the side_window
+            side_window.border()
+            side_window.addstr(1, 2, "Level: " + str(level))
+            side_window.addstr(2, 2, "Score: " + str(score))
+            side_window.addstr(4, 2, "Next: ")
+            for i in range(next_brick.width):
+                for j in range(next_brick.height):
+                    if next_brick.occupies_space(i, j):
+                        side_window.addstr(next_brick.y + j + 1 + 5, (2 * next_brick.x) + (2 * i) + 1 + -5, "  ", curses.color_pair(next_brick.color))
+            continue
+        # use backspace to end a game for debugging purposes
         elif user_input == curses.KEY_BACKSPACE:
             game_not_over = False
             break
