@@ -1,10 +1,7 @@
 import curses
-import random
 import time
 import Brick
 import math
-
-outFile = open("outFile", "w")
 
 def main():
     # initialize the screen
@@ -59,7 +56,7 @@ def main():
 
         # get a new current_brick
         if current_brick == None:
-            current_brick = Brick.brick()
+            current_brick = Brick.Brick()
             current_brick.x = (board_width - current_brick.width) / 2
 
         # start moving the brick down
@@ -91,9 +88,6 @@ def main():
         elif user_input == curses.KEY_UP:
             if current_brick.can_rotate(board):
                 current_brick.rotate()
-                outFile.write("\nSuccessfully rotated current_brick")
-                outFile.write("\nShape: " + str(current_brick.shape))
-                outFile.write("\nRotation: " + str(current_brick.rotation))
         elif user_input == curses.KEY_DOWN:
             if not has_moved:
                 current_brick.y += 1
@@ -184,10 +178,13 @@ def main():
             valid_screen = True
 
     # game over
+    screen.keypad(0)
     curses.echo()
     curses.nocbreak()
-    window.keypad(0)
+    curses.curs_set(1)
     curses.endwin()
+
+    print "Game over! Your final score was " + str(score) + "."
 
 
 
