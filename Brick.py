@@ -1,3 +1,5 @@
+# TODO(tpeoples): implement color for different brick types
+
 import random
 #import color
 
@@ -65,24 +67,27 @@ class Brick:
 
     def can_rotate(self, board):
         self.rotate()
-        collision = False
+        can_rotate = True
 
         for i in range(self.width):
             for j in range(self.height):
-                if i + self.x >= len(board) or i + self.x < 0:  # hits the right wall or the left wall respectively
-                    collision = True
-                if j + self.y >= len(board[0]) or j + self.y < 0: # hits the bottom or hits the top 
-                    collision = True
-                if self.occupies_space(i, j) and board[i + self.x][j + self.y]: # occupies_space(i, j) returns data[row][col]
-                                                                                # board[i + self.x][j + self.y] = True (there exists a brick in the location)
-                    collision = True
+                if i + self.x >= len(board) or i + self.x < 0:  
+                    # hits the right wall or the left wall respectively
+                    can_rotate = False
+                if j + self.y >= len(board[0]) or j + self.y < 0: 
+                    # hits the bottom or hits the top 
+                    can_rotate = False
+                if self.occupies_space(i, j) and board[i + self.x][j + self.y]: 
+                    # occupies_space(i, j) returns data[row][col]
+                    # board[i + self.x][j + self.y] = True (there exists a brick in the location)
+                    can_rotate = False
 
         # rotate back
         self.rotate()
         self.rotate()
         self.rotate()
 
-        return (not collision)  # if there was a collision, then return false
+        return can_rotate
 
 
     def occupies_space(self, i, j):
