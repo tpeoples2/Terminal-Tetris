@@ -14,7 +14,7 @@ def main():
 
     # initialize the game
     board_width = 10
-    board_height = 15
+    board_height = 19
     level = 1
     score = 0
     game_not_over = True
@@ -23,6 +23,11 @@ def main():
     window = curses.newwin(board_height + 2, 2 * board_width + 2, 0, 0)
     window.nodelay(True)    # getch() is non-blocking (doesn't wait for user input)
     window.keypad(1)        # some keys are interpreted by curses
+
+    ################################
+    score_level_window = curses.newwin(board_height / 2, 2 * board_width + 2 , 0, 25)
+    score_level_window.border()
+    score_level_window.addstr(1, 2, "Level: " + str(level))
 
     # initialize colors
     curses.init_pair(1, curses.COLOR_RED, curses.COLOR_WHITE)
@@ -44,12 +49,12 @@ def main():
     start_time = time.time()
 
     # welcome the player
-    screen.addstr(board_height / 2 - 5, 0, "Welcome to Terminal Tetris!")
+    screen.addstr(board_height / 2 - 5, 3, "Welcome to Terminal Tetris!")
 
     BUFFER_TIME = 1
     time_difference = time.time() - start_time
     while time_difference < BUFFER_TIME:
-        screen.addstr((board_height / 2) - 4, 0, "Starting in..." + str((BUFFER_TIME) - int(time_difference)))
+        screen.addstr((board_height / 2) - 4, 4, "Starting in..." + str((BUFFER_TIME) - int(time_difference)))
         screen.refresh()
         time_difference = time.time() - start_time
 
@@ -181,6 +186,7 @@ def main():
 
         # refresh
         window.refresh()
+        score_level_window.refresh()
         if not valid_screen:
             screen.refresh()
             valid_screen = True
