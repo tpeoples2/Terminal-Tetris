@@ -1,3 +1,5 @@
+# TODO(tpeoples): Change default orientation of BRICK_I
+
 import curses
 import time
 import Brick
@@ -42,6 +44,7 @@ def main():
     # initialize brick and timer
     current_brick = None
     next_brick = Brick.Brick()
+    hold_brick = None
     next_brick.x = (board_width - next_brick.width) / 2
 
     start_time = time.time()
@@ -57,6 +60,11 @@ def main():
             if next_brick.occupies_space(i, j):
                 side_window.addstr(next_brick.y + j + 1 + 5, (2 * next_brick.x) + (2 * i) + 1 + -5, "  ", curses.color_pair(next_brick.color))
 
+    # initialize hold window
+    hold_window = curses.newwin(board_height / 2 - 1, 1.5 * board_width, 10, 28)
+    hold_window.border()
+    hold_window.addstr(1, 2, "Holding: ")
+
     # welcome the player
     screen.addstr(board_height / 2 - 5, 3, "Welcome to Terminal Tetris!")
 
@@ -71,6 +79,8 @@ def main():
     screen.refresh()
     start_time = time.time()
 
+    tab_count = 1
+
     while game_not_over:
         has_moved = False
 
@@ -80,6 +90,7 @@ def main():
             next_brick = Brick.Brick()
             next_brick.x = (board_width - next_brick.width) / 2
             valid_side_window = False
+            tab_count = 1
 
         # start moving the brick down
         if time.time() - start_time >= (1.0 / level):
@@ -133,7 +144,15 @@ def main():
                     for j in range(next_brick.height):
                         if next_brick.occupies_space(i, j):
                             side_window.addstr(next_brick.y + j + 1 + 5, (2 * next_brick.x) + (2 * i) + 1 + -5, "  ", curses.color_pair(next_brick.color))
-                continue
+                # reinstate the hold_window
+                hold_window = curses.newwin(board_height / 2, int(1.5 * board_width), 10, 28)
+                hold_window.border()
+                hold_window.addstr(1, 2, "Holding: ")
+                if hold_brick != None:
+                    for i in range(hold_brick.width):
+                        for j in range(hold_brick.height):
+                            if hold_brick.occupies_space(i, j):
+                                hold_window.addstr(hold_brick.y + j + 1 + 2, (2 * hold_brick.x) + (2 * i) + 1 + -5, "  ", curses.color_pair(hold_brick.color))
             else:
                 screen.addstr(22, 2, "No more pauses left!")
                 screen.refresh()
@@ -150,6 +169,31 @@ def main():
                     for j in range(next_brick.height):
                         if next_brick.occupies_space(i, j):
                             side_window.addstr(next_brick.y + j + 1 + 5, (2 * next_brick.x) + (2 * i) + 1 + -5, "  ", curses.color_pair(next_brick.color))
+                # reinstate the hold_window
+                hold_window = curses.newwin(board_height / 2, int(1.5 * board_width), 10, 28)
+                hold_window.border()
+                hold_window.addstr(1, 2, "Holding: ")
+                if hold_brick != None:
+                    for i in range(hold_brick.width):
+                        for j in range(hold_brick.height):
+                            if hold_brick.occupies_space(i, j):
+                                hold_window.addstr(hold_brick.y + j + 1 + 2, (2 * hold_brick.x) + (2 * i) + 1 + -5, "  ", curses.color_pair(hold_brick.color))
+        elif user_input == 9:   # 9 is int value for "\t"
+            if tab_count > 0:
+                valid_side_window = False
+                if hold_brick != None:
+                    hold_brick.x = (board_width - hold_brick.width) / 2
+                    hold_brick.y = 0
+                    current_brick.x = (board_width - current_brick.width) / 2
+                    current_brick.y = 0
+                    hold_brick, current_brick = current_brick, hold_brick
+                elif hold_brick == None:
+                    current_brick.x = (board_width - current_brick.width) / 2
+                    current_brick.y = 0
+                    hold_brick, current_brick = current_brick, hold_brick
+                    continue
+                tab_count -= 1
+
         # use backspace to end a game for debugging purposes
         elif user_input == curses.KEY_BACKSPACE:
             game_not_over = False
@@ -229,6 +273,7 @@ def main():
         # refresh
         main_window.refresh()
         side_window.refresh()
+        hold_window.refresh()
         if not valid_side_window:
             # draw current level and score 
             side_window.clear()
@@ -240,8 +285,17 @@ def main():
                 for j in range(next_brick.height):
                     if next_brick.occupies_space(i, j):
                         side_window.addstr(next_brick.y + j + 1 + 5, (2 * next_brick.x) + (2 * i) + 1 + -5, "  ", curses.color_pair(next_brick.color))
+            hold_window.clear()
+            hold_window.border()
+            hold_window.addstr(1, 2, "Holding: ")
+            if hold_brick != None:
+                for i in range(hold_brick.width):
+                    for j in range(hold_brick.height):
+                        if hold_brick.occupies_space(i, j):
+                            hold_window.addstr(hold_brick.y + j + 1 + 2, (2 * hold_brick.x) + (2 * i) + 1 + -5, "  ", curses.color_pair(hold_brick.color))
             screen.refresh()
             valid_side_window = True
+
 
     # game over
     screen.addstr(22, 2, "Game over! You made it to level " + str(level) + " and your final score was " + str(score) + ".")
