@@ -6,7 +6,7 @@ import math
 def main():
     # initialize the screen
     screen = curses.initscr()   # initialize the library, returns a WindowObject
-    valid_screen = False
+    valid_side_window = False
     curses.start_color()        # initializes eight basic colors to use
     curses.noecho()             # each character is not repeated after entered
     curses.cbreak()             # characters are read one by one
@@ -20,14 +20,9 @@ def main():
     game_not_over = True
 
     # create window
-    window = curses.newwin(board_height + 2, 2 * board_width + 2, 0, 0)
-    window.nodelay(True)    # getch() is non-blocking (doesn't wait for user input)
-    window.keypad(1)        # some keys are interpreted by curses
-
-    ################################
-    score_level_window = curses.newwin(board_height / 2, 2 * board_width + 2 , 0, 25)
-    score_level_window.border()
-    score_level_window.addstr(1, 2, "Level: " + str(level))
+    main_window = curses.newwin(board_height + 2, 2 * board_width + 2, 0, 0)
+    main_window.nodelay(True)    # getch() is non-blocking (doesn't wait for user input)
+    main_window.keypad(1)        # some keys are interpreted by curses
 
     # initialize colors
     curses.init_pair(1, curses.COLOR_RED, curses.COLOR_WHITE)
@@ -43,10 +38,19 @@ def main():
     for i in range(board_width):
         board[i] = board_height * [False]
 
-
     # initialize brick and timer
     current_brick = None
+    next_brick = Brick.Brick()
+    next_brick.x = (board_width - next_brick.width) / 2
+
     start_time = time.time()
+
+    # initalize side_window
+    side_window = curses.newwin(board_height / 2, 2 * board_width + 2 , 0, 25)
+    side_window.border()
+    side_window.addstr(1, 2, "Level: " + str(level))
+    side_window.addstr(2, 2, "Score: " + str(score))
+    side_window.addstr(4, 2, "Next: " + str(next_brick.color))
 
     # welcome the player
     screen.addstr(board_height / 2 - 5, 3, "Welcome to Terminal Tetris!")
@@ -67,8 +71,9 @@ def main():
 
         # get a new current_brick
         if current_brick == None:
-            current_brick = Brick.Brick()
-            current_brick.x = (board_width - current_brick.width) / 2
+            current_brick = next_brick
+            next_brick = Brick.Brick()
+            valid_side_window = False
 
         # start moving the brick down
         if time.time() - start_time >= (1.0 / level):
@@ -77,7 +82,7 @@ def main():
             start_time = time.time()
 
         # deal with user input
-        user_input = window.getch()
+        user_input = main_window.getch()
         if user_input == curses.KEY_LEFT:
             if current_brick.x > 0:
                 # can it move left?
@@ -130,7 +135,6 @@ def main():
             for i in range(current_brick.width):
                 for j in range(current_brick.height):
                     if current_brick.occupies_space(i, j):
-                        #board[current_brick.x + i][current_brick.y + j] = True
                         board[current_brick.x + i][current_brick.y + j] = current_brick.color
 
             # reset the current_brick
@@ -156,40 +160,39 @@ def main():
             # calculate new score
             if lines_cleared > 0:
                 score += 2**(lines_cleared - 1) * 100
-                valid_screen = False    # score needs to be updated on screen
+                valid_side_window = False    # score needs to be updated on screen
             # calculate level
             if score > 0:
                 level = int(math.floor(math.sqrt(score) / 35) + 1)
             else:
                 level = 1
 
-        window.border()     # draw border of window
+        main_window.border()     # draw border of window
         # draw board
         for i in range(board_width):
             for j in range(board_height):
                 if board[i][j]:
-                    window.addstr(j + 1, 2 * i + 1, "  ", curses.color_pair(board[i][j]))
+                    main_window.addstr(j + 1, 2 * i + 1, "  ", curses.color_pair(board[i][j]))
                 else:
-                    window.addstr(j + 1, 2 * i + 1, "  ")
+                    main_window.addstr(j + 1, 2 * i + 1, "  ")
 
         # draw current_brick
         if current_brick != None:
             for i in range(current_brick.width):
                 for j in range(current_brick.height):
                     if current_brick.occupies_space(i, j) and (current_brick.y + j) >= 0:
-                        window.addstr(current_brick.y + j + 1, (2 *
-                            current_brick.x) + (2 * i) + 1, "  ", curses.color_pair(current_brick.color))
-
-        # draw current level and score 
-        screen.addstr(board_height + 3, 1, "Level: " + str(level))
-        screen.addstr(board_height + 2, 1, "Score: " + str(score))
+                        main_window.addstr(current_brick.y + j + 1, (2 * current_brick.x) + (2 * i) + 1, "  ", curses.color_pair(current_brick.color))
 
         # refresh
-        window.refresh()
-        score_level_window.refresh()
-        if not valid_screen:
+        main_window.refresh()
+        side_window.refresh()
+        if not valid_side_window:
+            # draw current level and score 
+            side_window.addstr(1, 2, "Level: " + str(level))
+            side_window.addstr(2, 2, "Score: " + str(score))
+            side_window.addstr(4, 2, "Next: " + str(next_brick.color))
             screen.refresh()
-            valid_screen = True
+            valid_side_window = True
 
     # game over
     screen.keypad(0)
