@@ -59,8 +59,7 @@ class Brick:
 
     def rotate(self):
         self.rotation += 1
-        self.width = self.height
-        self.height = self.width
+        self.width, self.height = self.height, self.width   # python way to swap 
 
         if self.rotation >= 4:
             self.rotation = 0
@@ -71,15 +70,13 @@ class Brick:
 
         for i in range(self.width):
             for j in range(self.height):
-                if i + self.x >= len(board) or i + self.x < 0:  
+                if i + self.x >= len(board) or i + self.x < 0:
                     # hits the right wall or the left wall respectively
                     can_rotate = False
-                if j + self.y >= len(board[0]) or j + self.y < 0: 
+                elif j + self.y >= len(board[0]) or j + self.y < 0:
                     # hits the bottom or hits the top 
                     can_rotate = False
-                if self.occupies_space(i, j) and board[i + self.x][j + self.y]: 
-                    # occupies_space(i, j) returns data[row][col]
-                    # board[i + self.x][j + self.y] = True (there exists a brick in the location)
+                elif self.occupies_space(i, j) and board[i + self.x][j + self.y]:
                     can_rotate = False
 
         # rotate back
@@ -100,11 +97,13 @@ class Brick:
         elif self.rotation == 2:
             col = self.width - i - 1
             row = self.height - j - 1
-        elif self.rotation == 4:
+        elif self.rotation == 3:
             col = self.height - j - 1
             row = i
+        else:
+            raise Exception("Invalid rotation")
 
-        return self.data[row][col]
+        return self.shape[row][col]
 
 
 
