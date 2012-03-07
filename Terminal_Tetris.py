@@ -225,25 +225,20 @@ def main():
             valid_side_window = True
 
     # game over
+    screen.addstr(22, 2, "Game over! You made it to level " + str(level) + " and your final score was " + str(score) + ".")
+    screen.addstr(23, 2, "Press e to exit.")
+    exit = screen.getch()
+    while exit != 101:  # 101 is int value of "e"
+        exit = screen.getch()
+
     screen.keypad(0)
     curses.echo()
     curses.nocbreak()
     curses.curs_set(1)
     curses.endwin()
 
-    print "Game over! Your final score was " + str(score) + "."
-
-
-
-
-
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
 
 
