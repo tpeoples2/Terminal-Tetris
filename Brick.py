@@ -1,7 +1,6 @@
 # TODO(tpeoples): implement color for different brick types
 
 import random
-#import color
 
 class Brick:
     # constants
@@ -22,37 +21,37 @@ class Brick:
         # randomly choose which type of Brick
         type = random.randint(0, 6)
         if type == Brick.BRICK_L:
-            #self.color = ORANGE
+            self.color = 1
             self.width =  3
             self.height = 2
             self.shape = [[False, False, True], [True, True, True]]
         elif type == Brick.BRICK_J:
-            #self.color = BLUE
+            self.color = 2
             self.width = 3
             self.height = 2
             self.shape = [[True, False, False], [True, True, True]]
         elif type == Brick.BRICK_T:
-            #self.color = PURPLE
+            self.color = 3
             self.width = 3
             self.height = 2
             self.shape = [[False, True, False], [True, True, True]]
         elif type == Brick.BRICK_I:
-            #self.color = CYAN
+            self.color = 4
             self.width = 4
             self.height = 1
             self.shape = [[True, True, True, True]]
         elif type == Brick.BRICK_Z:
-            #self.color = RED
+            self.color = 5
             self.width = 3
             self.height = 2
             self.shape = [[True, True, False], [False, True, True]]
         elif type == Brick.BRICK_S:
-            #self.color = GREEN
+            self.color = 6
             self.width = 3
             self.height = 2
             self.shape = [[False, True, True], [True, True, False]]
         elif type == Brick.BRICK_O:
-            #self.color = YELLOW
+            self.color = 7
             self.width = 2
             self.height = 2
             self.shape = [[True, True], [True, True]]

@@ -27,11 +27,17 @@ def main():
     # initialize colors
     curses.init_pair(1, curses.COLOR_RED, curses.COLOR_WHITE)
     curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLUE)
+    curses.init_pair(3, curses.COLOR_RED, curses.COLOR_MAGENTA)
+    curses.init_pair(4, curses.COLOR_RED, curses.COLOR_CYAN)
+    curses.init_pair(5, curses.COLOR_RED, curses.COLOR_RED)
+    curses.init_pair(6, curses.COLOR_RED, curses.COLOR_GREEN)
+    curses.init_pair(7, curses.COLOR_RED, curses.COLOR_YELLOW)
 
     # create board
     board = board_width * [None]
     for i in range(board_width):
         board[i] = board_height * [False]
+
 
     # initialize brick and timer
     current_brick = None
@@ -119,7 +125,8 @@ def main():
             for i in range(current_brick.width):
                 for j in range(current_brick.height):
                     if current_brick.occupies_space(i, j):
-                        board[current_brick.x + i][current_brick.y + j] = True
+                        #board[current_brick.x + i][current_brick.y + j] = True
+                        board[current_brick.x + i][current_brick.y + j] = current_brick.color
 
             # reset the current_brick
             # TODO: next_brick functionality
@@ -156,7 +163,7 @@ def main():
         for i in range(board_width):
             for j in range(board_height):
                 if board[i][j]:
-                    window.addstr(j + 1, 2 * i + 1, "  ", curses.color_pair(2))
+                    window.addstr(j + 1, 2 * i + 1, "  ", curses.color_pair(board[i][j]))
                 else:
                     window.addstr(j + 1, 2 * i + 1, "  ")
 
@@ -165,7 +172,8 @@ def main():
             for i in range(current_brick.width):
                 for j in range(current_brick.height):
                     if current_brick.occupies_space(i, j) and (current_brick.y + j) >= 0:
-                        window.addstr(current_brick.y + j + 1, (2 * current_brick.x) + (2 * i) + 1, "  ", curses.color_pair(1))
+                        window.addstr(current_brick.y + j + 1, (2 *
+                            current_brick.x) + (2 * i) + 1, "  ", curses.color_pair(current_brick.color))
 
         # draw current level and score 
         screen.addstr(board_height + 3, 1, "Level: " + str(level))
