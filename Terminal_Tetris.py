@@ -48,7 +48,24 @@ def init_hold_window(hold_brick):
     hold_window.refresh()
     return hold_window
 
+def init_help_window():
+    """Initialize help window that shows the controls"""
+    help_window = curses.newwin(BOARD_HEIGHT / 2 + 1, 3 * BOARD_WIDTH + 2,
+            1, 44)
+    help_window.border()
+    help_window.addstr(1, 2, "Controls:")
+    help_window.addstr(3, 2, "Move Brick   - L/R/D arrow")
+    help_window.addstr(4, 2, "Rotate Brick - U arrow")
+    help_window.addstr(5, 2, "Drop Brick   - Spacebar")
+    help_window.addstr(6, 2, "Swap Brick   - x")
+    help_window.addstr(7, 2, "Pause        - p")
+    help_window.addstr(8, 2, "Quit         - q")
+    help_window.refresh()
+    return help_window
+
+
 def init_board():
+    """Initialize the board that holds where all static pieces are"""
     board = BOARD_WIDTH * [None]
     for i in range(BOARD_WIDTH):
         board[i] = BOARD_HEIGHT * [False]
@@ -184,6 +201,7 @@ def main():
 
     screen.clear()
     screen.refresh()
+    help_window = init_help_window()
     start_time = time.time()
 
     # play the game
@@ -249,6 +267,8 @@ def main():
                 side_window = init_side_window(level, score, next_brick)
                 # reinstate the hold_window
                 hold_window = init_hold_window(hold_brick)
+                # reinstate the help_window
+                help_window = init_help_window()
             else:
                 screen.addstr(22, 2, "No more pauses left!")
                 screen.refresh()
@@ -260,6 +280,8 @@ def main():
                 side_window = init_side_window(level, score, next_brick)
                 # reinstate the hold_window
                 hold_window = init_hold_window(hold_brick)
+                # reinstate the help_window
+                help_window = init_help_window()
         elif user_input == ord("x"):
             if tabs_left > 0:
                 valid_side_window = False
@@ -327,13 +349,11 @@ def main():
             hold_window = init_hold_window(hold_brick)
             valid_hold_window = True
 
-        # screen.refresh()
-
     # game over 
     screen.addstr(22, 2, "Game over! You made it to level " + str(level) + " and your final score was " + str(score) + ".")
-    screen.addstr(23, 2, "Press e to exit.")
+    screen.addstr(23, 2, "Press q to exit.")
     exit = screen.getch()
-    while exit != 101:  # 101 is int value of "e"
+    while exit != ord("q"):
         exit = screen.getch()
 
     screen.keypad(0)
