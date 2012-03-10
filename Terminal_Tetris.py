@@ -1,8 +1,12 @@
 #!/usr/bin/python
 
 #TODO(tpeoples): Change level calculator
+#TODO(tpeoples): Change quit to "q"
+#TODO(tpeoples): Implement space to drop the current_brick
+#TODO(tpeoples): Implement shadow_brick to show where the brick would fall
+    # DONE, TOO FEW COLORS THOUGH
 
-import Brick, curses, time, math
+import Brick, curses, time, math, copy
 
 BOARD_WIDTH = 10
 BOARD_HEIGHT = 19
@@ -61,6 +65,7 @@ def draw_panel_brick(window, brick, yBuff, xBuff):
 
 def init_colors():
     """Initialize colors"""
+    curses.init_pair(8, curses.COLOR_RED, curses.COLOR_WHITE)
     curses.init_pair(1, curses.COLOR_RED, curses.COLOR_WHITE)
     curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLUE)
     curses.init_pair(3, curses.COLOR_RED, curses.COLOR_MAGENTA)
@@ -138,6 +143,18 @@ def draw_current_brick(main_window, current_brick):
                     main_window.addstr(current_brick.y + j + 1, (2 * current_brick.x) + (2 * i) + 1, "  ", curses.color_pair(current_brick.color))
 
 
+def draw_shadow_brick(main_window, board, current_brick):
+    """Draw the shadow brick to show where the piece will fall"""
+    shadow_brick = copy.deepcopy(current_brick)
+    if shadow_brick != None:
+        while not collision_occured(board, shadow_brick):
+            shadow_brick.y += 1
+        shadow_brick.y -= 1     # move it back up
+        for i in range(shadow_brick.width):
+            for j in range(shadow_brick.height):
+                if shadow_brick.occupies_space(i, j) and shadow_brick.y + j >= 0:
+                    main_window.addstr(shadow_brick.y + j + 1, (2 * shadow_brick.x) + (2 * i) + 1, "  ", curses.color_pair(8))
+
 def main():
     # initialize the screen 
     screen = init_screen()
@@ -213,13 +230,17 @@ def main():
         elif user_input == curses.KEY_DOWN:
             if not computer_moved:
                 current_brick.y += 1
-        elif user_input == 112:     # 112 is the int value for "p"
+        elif user_input == ord(" "):
+            while not collision_occured(board, current_brick):
+                current_brick.y += 1
+            #current_brick.y -= 1    # move it back to before collision
+        elif user_input == ord("p"):     # 112 is the int value for "p"
             if pauses_left > 0:
                 pauses_left -= 1
                 screen.addstr(22, 2, "PAUSED, press p to continue.")
                 main_window.nodelay(False)
                 exit = screen.getch()
-                while exit != 112:
+                while exit != ord("p"):
                     exit = screen.getch()
                 main_window.nodelay(True)
                 screen.clear()
@@ -239,7 +260,7 @@ def main():
                 side_window = init_side_window(level, score, next_brick)
                 # reinstate the hold_window
                 hold_window = init_hold_window(hold_brick)
-        elif user_input == 9:   # 9 is int value for "\t"
+        elif user_input == ord("x"):
             if tabs_left > 0:
                 valid_side_window = False
                 valid_hold_window = False
@@ -256,7 +277,7 @@ def main():
                     continue
                 tabs_left -= 1
         # use backspace to end a game for debugging purposes
-        elif user_input == curses.KEY_BACKSPACE:
+        elif user_input == ord("q"):
             game_over = True
             break
 
@@ -292,6 +313,7 @@ def main():
                 level = 1
 
         draw_board(main_window, board)
+        draw_shadow_brick(main_window, board, current_brick)
         draw_current_brick(main_window, current_brick)
         main_window.refresh()
 
