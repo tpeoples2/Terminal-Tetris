@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-#TODO(tpeoples): Change score
+#TODO(tpeoples): Change level calculator
 
 import Brick, curses, time, math
 
