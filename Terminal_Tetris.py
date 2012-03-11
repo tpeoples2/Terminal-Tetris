@@ -1,10 +1,6 @@
 #!/usr/bin/python
 
 #TODO(tpeoples): Change level calculator
-#TODO(tpeoples): Change quit to "q"
-#TODO(tpeoples): Implement space to drop the current_brick
-#TODO(tpeoples): Implement shadow_brick to show where the brick would fall
-    # DONE, TOO FEW COLORS THOUGH
 
 import Brick, curses, time, math, copy
 
